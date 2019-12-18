@@ -18,8 +18,8 @@ struct Point {
 }
 
 struct Bounds {
-	upper_left  Point
-	lower_right Point
+    upper_left  Point
+    lower_right Point
 }
 
 struct BodyBlock {
@@ -30,7 +30,7 @@ struct BodyBlock {
 
 struct Snake {
     name   string
-	mut:
+    mut:
     body  []BodyBlock
     direction Direction
 }
@@ -46,14 +46,14 @@ const(
     rat_character = "."
     tick_time_ms = 10
     paint_factor = 5
-	x_size = 50
-	y_size = 20
-	start_position = Point {5, 5}
-	start_direction = Direction.pos_x
+    x_size = 50
+    y_size = 20
+    start_position = Point {5, 5}
+    start_direction = Direction.pos_x
     bounds = Bounds {
-		upper_left: Point {1, 1}
-		lower_right: Point {x_size - 1, y_size - 1}
-	}
+        upper_left: Point {1, 1}
+        lower_right: Point {x_size - 1, y_size - 1}
+    }
 )
 
 pub fn create_snake(name string, len int) Snake {
@@ -65,7 +65,7 @@ pub fn create_snake(name string, len int) Snake {
 }
 
 fn create_tail(head Point, length int) []BodyBlock {
-	default_body_block := BodyBlock {
+    default_body_block := BodyBlock {
         location: Point {0, 0}
         ticks_to_visible: 0
     }
@@ -85,7 +85,7 @@ fn create_tail(head Point, length int) []BodyBlock {
 }
 
 fn (s Snake) length() int {
-	return s.body.len
+    return s.body.len
 }
 
 pub fn (s BodyBlock) str() string {
@@ -121,9 +121,9 @@ pub fn (s mut Snake) step() {
     // everything except the head 
     // moves according to the block before it
     for i := s.length() - 1; i >= 1 ; i-- {
-		if s.body[i].is_visible() {
-			s.body[i].location = s.body[i-1].location
-		}
+        if s.body[i].is_visible() {
+            s.body[i].location = s.body[i-1].location
+        }
     }
 
     // head moves according to the direction
@@ -142,52 +142,52 @@ fn (s Snake) get_next_head_point() Point {
 }
 
 fn (s Snake) get_visible_points() []Point{
-	body := s.body
-	visible := body.filter(it.is_visible())
-	points := visible.map(it.location)
-	return points
+    body := s.body
+    visible := body.filter(it.is_visible())
+    points := visible.map(it.location)
+    return points
 }
 
 fn (s mut Snake) is_out_of_bounds() bool {
-	head := s.body[0].location
+    head := s.body[0].location
 
-	if head.x <= bounds.upper_left.x {
-		s.body[0].location = Point {
-			x_size - 2,
-			s.body[0].location.y
-		}
-	}
-	else if head.x >= bounds.lower_right.x {
-		s.body[0].location = Point {
-			1,
-			s.body[0].location.y
-		}
-	}
-	else if head.y <= bounds.upper_left.y {
-		s.body[0].location = Point {
-			s.body[0].location.x,
-			y_size - 2
-		}
-	}
-	else if head.y >= bounds.lower_right.y {
-		s.body[0].location = Point {
-			s.body[0].location.x,
-			1
-		}
-	}
-	return false
+    if head.x <= bounds.upper_left.x {
+        s.body[0].location = Point {
+            x_size - 2,
+            s.body[0].location.y
+        }
+    }
+    else if head.x >= bounds.lower_right.x {
+        s.body[0].location = Point {
+            1,
+            s.body[0].location.y
+        }
+    }
+    else if head.y <= bounds.upper_left.y {
+        s.body[0].location = Point {
+            s.body[0].location.x,
+            y_size - 2
+        }
+    }
+    else if head.y >= bounds.lower_right.y {
+        s.body[0].location = Point {
+            s.body[0].location.x,
+            1
+        }
+    }
+    return false
 }
 
 fn (s Snake) is_dead() bool {
-	return (s.body[0] in s.body[1..])
+    return (s.body[0] in s.body[1..])
 }
 
 fn (s mut Snake) eat(rat Point) {
-	tail := BodyBlock {
-		location: rat
-		ticks_to_visible: s.length()
-	}
-	s.body << tail
+    tail := BodyBlock {
+        location: rat
+        ticks_to_visible: s.length()
+    }
+    s.body << tail
 }
 
 
@@ -196,14 +196,14 @@ fn (b BodyBlock) is_visible() bool {
 }
 
 fn (arr []BodyBlock) contains(a BodyBlock) bool {
-	for i := 0; i < arr.len; i++ {
-		if arr[i].location.is_equal(a.location) { return true }
-	}
-	return false
+    for i := 0; i < arr.len; i++ {
+        if arr[i].location.is_equal(a.location) { return true }
+    }
+    return false
 }
 
 fn (this BodyBlock)  is_equal(that BodyBlock) bool {
-	return that.location.is_equal(this.location)
+    return that.location.is_equal(this.location)
 }
 
 fn (p Point) add_x(value int) Point {
@@ -219,30 +219,30 @@ pub fn (p Point) str() string {
 }
 
 fn (this Point) is_equal(that Point) bool {
-	return this.x == that.x && this.y == that.y
+    return this.x == that.x && this.y == that.y
 }
 
 
 
 pub fn (g mut Game) run() {
     mut i := 0
-	rand.seed(time.now().uni)
-	mut rat := Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
+    rand.seed(time.now().uni)
+    mut rat := Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
     for {
         g.gg.render()
         if i == paint_factor {
             g.snake.step()
-			if g.snake.is_dead() { exit(0) }
-			if g.snake.is_out_of_bounds() { exit (0) }
-			point_list := g.snake.get_visible_points()
-			term.erase_clear()
-			print_point_list([rat], "$")
-			if g.snake.body[0].location.is_equal(rat) {
-				g.snake.eat(rat)
-				rat = Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
-			}
+            if g.snake.is_dead() { exit(0) }
+            if g.snake.is_out_of_bounds() { exit (0) }
+            point_list := g.snake.get_visible_points()
+            term.erase_clear()
+            print_point_list([rat], "$")
+            if g.snake.body[0].location.is_equal(rat) {
+                g.snake.eat(rat)
+                rat = Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
+            }
             print_point_list(point_list, snake_character)
-			print_bounds()
+            print_bounds()
             i = 0
         }
         glfw.post_empty_event()
@@ -264,47 +264,47 @@ fn print_point_list(lst []Point, ch string) {
 }
 
 fn max(a, b int) int {
-	if a > b { return a } else { return b}
+    if a > b { return a } else { return b}
 }
 
 fn min(a, b int) int {
-	if a < b { return a } else {return b}
+    if a < b { return a } else {return b}
 }
 
 fn print_line(start,end Point, ch string) {
-	sx := start.x
-	sy := start.y
-	ex := end.x
-	ey := end.y
+    sx := start.x
+    sy := start.y
+    ex := end.x
+    ey := end.y
 
-	if sx == ex {
-		// move in y
-		for i := min(sy, ey); i <= max(sy, ey); i++ {
-			term.set_cursor_position(sx, i)
-			println(ch)
-		}
-	}
-	else if sy == ey {
-		// move in x
-		for i := min(sx, ex); i <= max(sx, ex); i++ {
-			term.set_cursor_position(i, sy)
-			println(ch)
-		}
-	}
-	else {}
+    if sx == ex {
+        // move in y
+        for i := min(sy, ey); i <= max(sy, ey); i++ {
+            term.set_cursor_position(sx, i)
+            println(ch)
+        }
+    }
+    else if sy == ey {
+        // move in x
+        for i := min(sx, ex); i <= max(sx, ex); i++ {
+            term.set_cursor_position(i, sy)
+            println(ch)
+        }
+    }
+    else {}
 
 }
 
 
 fn print_bounds() {
-	upper_left := bounds.upper_left
-	upper_right := Point { bounds.lower_right.x, bounds.upper_left.y }
-	lower_left := Point { bounds.upper_left.x, bounds.lower_right.y }
-	lower_right := bounds.lower_right
-	print_line(upper_right, upper_left, "-")
-	print_line(upper_left, lower_left, "|")
-	print_line(lower_left, lower_right, "_")
-	print_line(lower_right, upper_right, "|")
+    upper_left := bounds.upper_left
+    upper_right := Point { bounds.lower_right.x, bounds.upper_left.y }
+    lower_left := Point { bounds.upper_left.x, bounds.lower_right.y }
+    lower_right := bounds.lower_right
+    print_line(upper_right, upper_left, "-")
+    print_line(upper_left, lower_left, "|")
+    print_line(lower_left, lower_right, "_")
+    print_line(lower_right, upper_right, "|")
 }
 
 /*
@@ -318,8 +318,8 @@ fn game() {
         snake: create_snake("perkele", 10)
         gg: gg.new_context(
             gg.Cfg {
-				width: 10
-				height: 10
+                width: 10
+                height: 10
                 use_ortho: false
                 create_window: true
                 window_title: 'snake keyboard handler'
@@ -329,21 +329,21 @@ fn game() {
     }
 
     game.gg.window.set_user_ptr(game)
-	game.gg.window.onkeydown(key_down)
+    game.gg.window.onkeydown(key_down)
     term.hide_cursor()
     game.run()
 }
 
 fn key_down(wnd voidptr, key, code, action, mods int) {
-	if action != 2 && action != 1 {
-		return
-	}
+    if action != 2 && action != 1 {
+        return
+    }
 
-	// Fetch the game object stored in the user pointer
+    // Fetch the game object stored in the user pointer
     mut game := &Game(glfw.get_window_user_pointer(wnd))
 
-	// keys while game is running
-	match key {
+    // keys while game is running
+    match key {
         glfw.KeyUp {
             game.snake.change_direction(.neg_y)
         }
@@ -356,8 +356,8 @@ fn key_down(wnd voidptr, key, code, action, mods int) {
         glfw.KeyDown {
             game.snake.change_direction(.pos_y)
         }
-		else { }
-	}
+        else { }
+    }
 }
 
 fn main() {

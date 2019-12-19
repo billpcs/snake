@@ -302,8 +302,8 @@ fn print_bounds() {
     lower_left := Point { bounds.upper_left.x, bounds.lower_right.y }
     lower_right := bounds.lower_right
     print_line(upper_right, upper_left, "-")
-    print_line(upper_left, lower_left, "|")
     print_line(lower_left, lower_right, "_")
+    print_line(upper_left, lower_left, "|")
     print_line(lower_right, upper_right, "|")
 }
 

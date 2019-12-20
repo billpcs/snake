@@ -38,6 +38,7 @@ struct Snake {
 struct Game {
     mut:
     snake   Snake
+    last_key_press Direction
     gg      &gg.GG
 }
 
@@ -231,6 +232,7 @@ pub fn (g mut Game) run() {
     for {
         g.gg.render()
         if i == paint_factor {
+            g.snake.change_direction(g.last_key_press)
             g.snake.step()
             if g.snake.is_dead() { exit(0) }
             if g.snake.is_out_of_bounds() { exit (0) }
@@ -316,6 +318,7 @@ fn game() {
 
     mut game := &Game {
         snake: create_snake("perkele", 10)
+        last_key_press: .pos_x
         gg: gg.new_context(
             gg.Cfg {
                 width: 10
@@ -345,16 +348,16 @@ fn key_down(wnd voidptr, key, code, action, mods int) {
     // keys while game is running
     match key {
         glfw.KeyUp {
-            game.snake.change_direction(.neg_y)
+            game.last_key_press = .neg_y
         }
         glfw.KeyLeft {
-            game.snake.change_direction(.neg_x)
+            game.last_key_press = .neg_x
         }
         glfw.KeyRight {
-            game.snake.change_direction(.pos_x)
+            game.last_key_press = .pos_x
         }
         glfw.KeyDown {
-            game.snake.change_direction(.pos_y)
+            game.last_key_press = .pos_y
         }
         else { }
     }

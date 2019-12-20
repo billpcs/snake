@@ -251,26 +251,29 @@ fn (this Point) is_equal(that Point) bool {
 
 pub fn (g mut Game) run() {
     mut i := 0
-    rand.seed(time.now().uni)
     mut rat := g.snake.next_rat()
     for {
-        g.gg.render()
         if i == paint_factor {
+
+            // pre paint
+            i = 0
             g.snake.change_direction(g.last_key_press)
             g.snake.step()
             g.snake.check_snake_wrap()
             if g.snake.is_dead() { exit(0) }
-            point_list := g.snake.get_visible_points()
             term.erase_clear()
-            print_point_list([rat], rat_character)
             if g.snake.body[0].location.is_equal(rat) {
                 g.snake.eat(rat)
                 rat = g.snake.next_rat()
             }
+
+            // paint
+            point_list := g.snake.get_visible_points()
+            print_point_list([rat], rat_character)
             print_point_list(point_list, snake_character)
             print_bounds()
-            i = 0
         }
+        g.gg.render()
         glfw.post_empty_event()
         time.sleep_ms(tick_time_ms)
         i++
@@ -388,5 +391,6 @@ fn key_down(wnd voidptr, key, code, action, mods int) {
 }
 
 fn main() {
+    rand.seed(time.now().uni)
     main_game()
 }

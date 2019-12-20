@@ -88,17 +88,6 @@ fn (s Snake) length() int {
     return s.body.len
 }
 
-pub fn (s BodyBlock) str() string {
-    return '${s.location}+${s.ticks_to_visible}'
-}
-
-pub fn (s Snake) str() string {
-    return "snake ${s.name}\n" +
-            "[len:${s.length().str()}] " +
-            "[dir: ${s.direction.str()}]" +
-            "\n" + s.body.str()
-}
-
 pub fn (snake mut Snake) change_direction(d Direction) {
     if (snake.direction == .neg_x || snake.direction == .pos_x) &&
         (d == .neg_x || d == .pos_x) {}

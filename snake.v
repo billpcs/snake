@@ -4,9 +4,7 @@ import glfw
 import gg
 import rand
 
-/*
-    Snake Engine
-*/
+/* Snake Engine */
 
 enum Direction {
     pos_x neg_x pos_y neg_y
@@ -119,8 +117,7 @@ pub fn (s mut Snake) step() {
     }
 
     // update positions
-    // everything except the head 
-    // moves according to the block before it
+    // everything except the head moves according to the block before it
     for i := s.length() - 1; i >= 1 ; i-- {
         if s.body[i].is_visible() {
             s.body[i].location = s.body[i-1].location
@@ -247,8 +244,6 @@ fn (this Point) is_equal(that Point) bool {
     return this.x == that.x && this.y == that.y
 }
 
-
-
 pub fn (g mut Game) run() {
     mut i := 0
     mut rat := g.snake.next_rat()
@@ -280,12 +275,9 @@ pub fn (g mut Game) run() {
     }
 }
 
-/*
-    Ascii Engine
-*/
+/* Ascii Engine */
 
 fn print_point_list(lst []Point, ch string) {
-    // println(lst)
     for point in lst {
         term.set_cursor_position(point.x, point.y)
         println(ch)
@@ -306,15 +298,13 @@ fn print_line(start,end Point, ch string) {
     ex := end.x
     ey := end.y
 
-    if sx == ex {
-        // move in y
+    if sx == ex { // move in y
         for i := min(sy, ey); i <= max(sy, ey); i++ {
             term.set_cursor_position(sx, i)
             println(ch)
         }
     }
-    else if sy == ey {
-        // move in x
+    else if sy == ey { // move in x
         for i := min(sx, ex); i <= max(sx, ex); i++ {
             term.set_cursor_position(i, sy)
             println(ch)
@@ -326,19 +316,18 @@ fn print_line(start,end Point, ch string) {
 
 
 fn print_bounds() {
-    upper_left := bounds.upper_left
+    upper_left  := bounds.upper_left
     upper_right := Point { bounds.lower_right.x, bounds.upper_left.y }
-    lower_left := Point { bounds.upper_left.x, bounds.lower_right.y }
+    lower_left  := Point { bounds.upper_left.x, bounds.lower_right.y }
     lower_right := bounds.lower_right
-    print_line(upper_right, upper_left, "-")
-    print_line(lower_left, lower_right, "_")
-    print_line(upper_left, lower_left, "|")
+    print_line(upper_right, upper_left,  "-")
+    print_line(lower_left,  lower_right, "_")
+    print_line(upper_left,  lower_left,  "|")
     print_line(lower_right, upper_right, "|")
 }
 
-/*
-    Main Game
-*/
+/* Main Game */
+
 fn main_game() {
 
     glfw.init_glfw()
@@ -365,6 +354,7 @@ fn main_game() {
 }
 
 fn key_down(wnd voidptr, key, code, action, mods int) {
+
     if action != 2 && action != 1 {
         return
     }

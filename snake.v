@@ -191,6 +191,23 @@ fn (s mut Snake) eat(rat Point) {
     s.body << tail
 }
 
+fn get_next_random_point() Point {
+    return Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
+}
+
+fn (s Snake) next_rat() Point {
+    mut rat := get_next_random_point()
+    body := s.body
+    locations := body.map(it.location)
+    for {
+        if rat in locations {
+            rat = get_next_random_point()
+        }
+        else { return rat }
+    }
+    return rat
+}
+
 
 fn (b BodyBlock) is_visible() bool {
     return (b.ticks_to_visible == 0)
@@ -199,6 +216,13 @@ fn (b BodyBlock) is_visible() bool {
 fn (arr []BodyBlock) contains(a BodyBlock) bool {
     for i := 0; i < arr.len; i++ {
         if arr[i].location.is_equal(a.location) { return true }
+    }
+    return false
+}
+
+fn (arr []Point) contains(a Point) bool {
+    for i := 0; i < arr.len; i++ {
+        if arr[i].is_equal(a) { return true }
     }
     return false
 }
@@ -228,7 +252,7 @@ fn (this Point) is_equal(that Point) bool {
 pub fn (g mut Game) run() {
     mut i := 0
     rand.seed(time.now().uni)
-    mut rat := Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
+    mut rat := g.snake.next_rat()
     for {
         g.gg.render()
         if i == paint_factor {
@@ -241,7 +265,7 @@ pub fn (g mut Game) run() {
             print_point_list([rat], "$")
             if g.snake.body[0].location.is_equal(rat) {
                 g.snake.eat(rat)
-                rat = Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
+                rat = g.snake.next_rat()
             }
             print_point_list(point_list, snake_character)
             print_bounds()

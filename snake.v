@@ -149,7 +149,7 @@ fn (s Snake) get_visible_points() []Point{
     return points
 }
 
-fn (s mut Snake) is_out_of_bounds() bool {
+fn (s mut Snake) check_snake_wrap() {
     head := s.body[0].location
 
     if head.x <= bounds.upper_left.x {
@@ -176,7 +176,7 @@ fn (s mut Snake) is_out_of_bounds() bool {
             1
         }
     }
-    return false
+
 }
 
 fn (s Snake) is_dead() bool {
@@ -258,8 +258,8 @@ pub fn (g mut Game) run() {
         if i == paint_factor {
             g.snake.change_direction(g.last_key_press)
             g.snake.step()
+            g.snake.check_snake_wrap()
             if g.snake.is_dead() { exit(0) }
-            if g.snake.is_out_of_bounds() { exit (0) }
             point_list := g.snake.get_visible_points()
             term.erase_clear()
             print_point_list([rat], rat_character)

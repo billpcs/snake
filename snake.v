@@ -44,7 +44,7 @@ struct Game {
 
 const(
     snake_character = "o"
-    rat_character = "."
+    rat_character = "@"
     tick_time_ms = 10
     paint_factor = 5
     x_size = 50
@@ -262,7 +262,7 @@ pub fn (g mut Game) run() {
             if g.snake.is_out_of_bounds() { exit (0) }
             point_list := g.snake.get_visible_points()
             term.erase_clear()
-            print_point_list([rat], "$")
+            print_point_list([rat], rat_character)
             if g.snake.body[0].location.is_equal(rat) {
                 g.snake.eat(rat)
                 rat = g.snake.next_rat()

@@ -336,7 +336,7 @@ fn print_bounds() {
 /*
     Main Game
 */
-fn game() {
+fn main_game() {
 
     glfw.init_glfw()
 
@@ -388,5 +388,5 @@ fn key_down(wnd voidptr, key, code, action, mods int) {
 }
 
 fn main() {
-    game()
+    main_game()
 }

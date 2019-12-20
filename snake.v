@@ -3,6 +3,7 @@ import time
 import glfw
 import gg
 import rand
+import math
 
 /* Snake Engine */
 
@@ -284,14 +285,6 @@ fn print_point_list(lst []Point, ch string) {
     }
 }
 
-fn max(a, b int) int {
-    if a > b { return a } else { return b}
-}
-
-fn min(a, b int) int {
-    if a < b { return a } else {return b}
-}
-
 fn print_line(start,end Point, ch string) {
     sx := start.x
     sy := start.y
@@ -299,13 +292,13 @@ fn print_line(start,end Point, ch string) {
     ey := end.y
 
     if sx == ex { // move in y
-        for i := min(sy, ey); i <= max(sy, ey); i++ {
+        for i := int(math.min(sy, ey)); i <= int(math.max(sy, ey)); i++ {
             term.set_cursor_position(sx, i)
             println(ch)
         }
     }
     else if sy == ey { // move in x
-        for i := min(sx, ex); i <= max(sx, ex); i++ {
+        for i := int(math.min(sx, ex)); i <= int(math.max(sx, ex)); i++ {
             term.set_cursor_position(i, sy)
             println(ch)
         }

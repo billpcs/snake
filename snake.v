@@ -363,6 +363,6 @@ fn key_down(wnd voidptr, key, code, action, mods int) {
 }
 
 fn main() {
-    rand.seed(time.now().uni)
+    rand.seed(time.now().unix)
     main_game()
 }

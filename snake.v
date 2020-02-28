@@ -102,7 +102,7 @@ pub fn (s mut Snake) step() {
     // update ticks
     for i := 0; i < s.length(); i++ {
         if s.body[i].ticks_to_visible > 0 {
-            s.body[i].ticks_to_visible -= 1
+            s.body[i].ticks_to_visible --
         }
     }
 

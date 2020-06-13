@@ -1,7 +1,8 @@
 import term
 import time
-import glfw
+import gx
 import gg
+import sokol.sapp
 import rand
 import math
 
@@ -38,7 +39,7 @@ struct Game {
     mut:
     snake   Snake
     last_key_press Direction
-    gg      &gg.GG
+    gg      &gg.Context = voidptr(0)
 }
 
 const(
@@ -56,7 +57,7 @@ const(
     }
 )
 
-pub fn create_snake(name string, len int) Snake {
+fn create_snake(name string, len int) Snake {
     return Snake {
         name: "main_snake"
         body: create_tail(start_position, len)
@@ -88,7 +89,7 @@ fn (s Snake) length() int {
     return s.body.len
 }
 
-pub fn (snake mut Snake) change_direction(d Direction) {
+pub fn (mut snake Snake) change_direction(d Direction) {
     if (snake.direction == .neg_x || snake.direction == .pos_x) &&
         (d == .neg_x || d == .pos_x) {}
     else if (snake.direction == .neg_y || snake.direction == .pos_y) &&
@@ -98,7 +99,7 @@ pub fn (snake mut Snake) change_direction(d Direction) {
     }
 }
 
-pub fn (s mut Snake) step() {
+pub fn (mut s Snake) step() {
     // update ticks
     for i := 0; i < s.length(); i++ {
         if s.body[i].ticks_to_visible > 0 {
@@ -124,7 +125,6 @@ fn (s Snake) get_next_head_point() Point {
         .neg_x { return s.body[0].location.add_x(-1) }
         .pos_y { return s.body[0].location.add_y(1)  }
         .neg_y { return s.body[0].location.add_y(-1) }
-        else {}
     }
     return Point {0, 0}
 }
@@ -136,7 +136,7 @@ fn (s Snake) get_visible_points() []Point{
     return points
 }
 
-fn (s mut Snake) check_snake_wrap() {
+fn (mut s Snake) check_snake_wrap() {
     head := s.body[0].location
 
     if head.x <= bounds.upper_left.x {
@@ -170,7 +170,7 @@ fn (s Snake) is_dead() bool {
     return (s.body[0] in s.body[1..])
 }
 
-fn (s mut Snake) eat(rat Point) {
+fn (mut s Snake) eat(rat Point) {
     tail := BodyBlock {
         location: rat
         ticks_to_visible: s.length()
@@ -179,7 +179,7 @@ fn (s mut Snake) eat(rat Point) {
 }
 
 fn get_next_random_point() Point {
-    return Point{ rand.next(x_size-5) + 2, rand.next(y_size-5) + 2}
+    return Point{ rand.intn(x_size-5) + 2, rand.intn(y_size-5) + 2}
 }
 
 fn (s Snake) next_rat() Point {
@@ -234,7 +234,7 @@ fn (this Point) is_equal(that Point) bool {
     return this.x == that.x && this.y == that.y
 }
 
-pub fn (g mut Game) run() {
+pub fn (mut g Game) run() {
     mut i := 0
     mut rat := g.snake.next_rat()
     for {
@@ -258,8 +258,6 @@ pub fn (g mut Game) run() {
             print_point_list(point_list, snake_character)
             print_bounds()
         }
-        g.gg.render()
-        glfw.post_empty_event()
         time.sleep_ms(tick_time_ms)
         i++
     }
@@ -312,50 +310,52 @@ fn print_bounds() {
 
 fn main_game() {
 
-    glfw.init_glfw()
-
     mut game := &Game {
-        snake: create_snake("perkele", 10)
+        snake: create_snake("käärme", 10)
         last_key_press: .pos_x
-        gg: gg.new_context(
-            gg.Cfg {
-                width: 10
-                height: 10
-                use_ortho: false
-                create_window: true
-                window_title: 'snake keyboard handler'
-                window_user_ptr: game
-            }
-        )
+        gg: 0
     }
 
-    game.gg.window.set_user_ptr(game)
-    game.gg.window.onkeydown(key_down)
+    game.gg = gg.new_context(
+        width: 10
+        height: 10
+        use_ortho: true
+        create_window: true
+        bg_color: gx.yellow
+        window_title: 'snake keyboard handler'
+        user_data: game
+        event_fn: key_down
+        frame_fn: frame
+    )
+
     term.hide_cursor()
-    game.run()
+    go game.run()
+    game.gg.run()
 }
 
-fn key_down(wnd voidptr, key, code, action, mods int) {
+fn frame(game &Game) {
+    game.gg.begin()
+	game.gg.end()
+}
 
-    if action != 2 && action != 1 {
-        return
-    }
+fn key_down(e &sapp.Event, mut game Game) {
 
-    // Fetch the game object stored in the user pointer
-    mut game := &Game(glfw.get_window_user_pointer(wnd))
+    //if action != 2 && action != 1 {
+    //    return
+    //}
 
     // keys while game is running
-    match key {
-        glfw.KeyUp {
+    match e.key_code {
+        .up {
             game.last_key_press = .neg_y
         }
-        glfw.KeyLeft {
+        .left {
             game.last_key_press = .neg_x
         }
-        glfw.KeyRight {
+        .right {
             game.last_key_press = .pos_x
         }
-        glfw.KeyDown {
+        .down {
             game.last_key_press = .pos_y
         }
         else { }
@@ -363,6 +363,5 @@ fn key_down(wnd voidptr, key, code, action, mods int) {
 }
 
 fn main() {
-    rand.seed(time.now().unix)
     main_game()
 }

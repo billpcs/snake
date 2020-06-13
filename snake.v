@@ -130,10 +130,7 @@ fn (s Snake) get_next_head_point() Point {
 }
 
 fn (s Snake) get_visible_points() []Point{
-    body := s.body
-    visible := body.filter(it.is_visible())
-    points := visible.map(it.location)
-    return points
+    return s.body.filter(it.is_visible()).map(it.location)
 }
 
 fn (mut s Snake) check_snake_wrap() {
@@ -184,8 +181,7 @@ fn get_next_random_point() Point {
 
 fn (s Snake) next_rat() Point {
     mut rat := get_next_random_point()
-    body := s.body
-    locations := body.map(it.location)
+    locations := s.body.map(it.location)
     for {
         if rat in locations {
             rat = get_next_random_point()
@@ -339,11 +335,6 @@ fn frame(game &Game) {
 }
 
 fn key_down(e &sapp.Event, mut game Game) {
-
-    //if action != 2 && action != 1 {
-    //    return
-    //}
-
     // keys while game is running
     match e.key_code {
         .up {

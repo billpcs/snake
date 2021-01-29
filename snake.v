@@ -1,10 +1,8 @@
 import term
 import time
-import gx
-import gg
-import sokol.sapp
 import rand
 import math
+import term.ui as tui
 
 // Snake Engine
 enum Direction {
@@ -31,7 +29,7 @@ mut:
 }
 
 struct Snake {
-	name      string
+	name string
 mut:
 	body      []BodyBlock
 	direction Direction
@@ -41,7 +39,7 @@ struct Game {
 mut:
 	snake          Snake
 	last_key_press Direction
-	gg             &gg.Context = voidptr(0)
+	tui            &tui.Context = 0
 }
 
 const (
@@ -89,9 +87,8 @@ fn (s Snake) length() int {
 
 pub fn (mut snake Snake) change_direction(d Direction) {
 	if (snake.direction == .neg_x || snake.direction == .pos_x) && (d == .neg_x || d == .pos_x) {
-	} else if (snake.direction == .neg_y ||
-		snake.direction == .pos_y) &&
-		(d == .neg_y || d == .pos_y) {
+	} else if (snake.direction == .neg_y || snake.direction == .pos_y)
+		&& (d == .neg_y || d == .pos_y) {
 	} else {
 		snake.direction = d
 	}
@@ -99,6 +96,7 @@ pub fn (mut snake Snake) change_direction(d Direction) {
 
 pub fn (mut s Snake) step() {
 	// update ticks
+	mut a := s.body[0]
 	for i := 0; i < s.length(); i++ {
 		if s.body[i].ticks_to_visible > 0 {
 			s.body[i].ticks_to_visible--
@@ -287,44 +285,41 @@ fn print_bounds() {
 }
 
 // Main Game
-fn main_game() {
+fn main_game() ? {
 	mut game := &Game{
 		snake: create_snake('käärme', 10)
 		last_key_press: .pos_x
-		gg: 0
 	}
-	game.gg = gg.new_context({
-		width: 10
-		height: 10
-		use_ortho: true
-		create_window: true
-		bg_color: gx.yellow
-		window_title: 'snake keyboard handler'
+
+	game.tui = tui.init(
 		user_data: game
 		event_fn: key_down
-		frame_fn: frame
-	})
-	term.hide_cursor()
+		window_title: 'snake!'
+		hide_cursor: true
+		capture_events: true
+		frame_rate: 60
+		use_alternate_buffer: false
+	)
+
 	go game.run()
-	game.gg.run()
+	game.tui.run() ?
 }
 
-fn frame(game &Game) {
-	game.gg.begin()
-	game.gg.end()
-}
+fn key_down(e &tui.Event, mut game Game) {
+	if e.typ != .key_down {
+		return
+	}
 
-fn key_down(e &sapp.Event, mut game Game) {
-	// keys while game is running
-	match e.key_code {
+	match e.code {
 		.up { game.last_key_press = .neg_y }
 		.left { game.last_key_press = .neg_x }
 		.right { game.last_key_press = .pos_x }
 		.down { game.last_key_press = .pos_y }
+    .escape { exit(0) }
 		else {}
 	}
 }
 
 fn main() {
-	main_game()
+	main_game() ?
 }

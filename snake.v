@@ -38,6 +38,8 @@ struct Game {
 mut:
 	snake          Snake
 	last_key_press Direction
+	is_paused      bool
+	has_ended      bool
 	tui            &tui.Context = 0
 }
 
@@ -81,6 +83,12 @@ fn create_tail(head Point, length int) []BodyBlock {
 		point = point.add_x(-1)
 	}
 	return body
+}
+
+fn (g Game) exit() {
+	term.erase_clear()
+	term.show_cursor()
+	exit(0)
 }
 
 fn (s Snake) length() int {
@@ -200,19 +208,28 @@ fn (this Point) is_equal(that Point) bool {
 	return this.x == that.x && this.y == that.y
 }
 
+pub fn (g Game) should_render_step() bool {
+	return !g.is_paused && !g.has_ended
+}
+
 pub fn (mut g Game) run() {
 	mut i := 0
 	mut rat := g.snake.next_rat()
 	for {
 		if i == paint_factor {
-			// pre paint
 			i = 0
-			g.snake.change_direction(g.last_key_press)
-			g.snake.step()
-			g.snake.check_snake_wrap()
+
 			if g.snake.is_dead() {
-				exit(0)
+				g.has_ended = true
+				return
 			}
+
+			if g.should_render_step() {
+				g.snake.change_direction(g.last_key_press)
+				g.snake.step()
+				g.snake.check_snake_wrap()
+			}
+
 			term.erase_clear()
 			if g.snake.body[0].location.is_equal(rat) {
 				g.snake.eat(rat)
@@ -230,6 +247,10 @@ pub fn (mut g Game) run() {
 			print_point_list(mut g, [rat], rat_character)
 			print_point_list(mut g, point_list, snake_character)
 			print_bounds(mut g)
+
+			if g.is_paused {
+				print_pause(mut g)
+			}
 		}
 		time.sleep_ms(tick_time_ms)
 		i++
@@ -273,11 +294,20 @@ fn print_bounds(mut g Game) {
 	g.tui.flush()
 }
 
-// Main Game
+fn print_pause(mut g Game) {
+	g.tui.set_color(point_color)
+	g.tui.set_bg_color(backgr_color)
+	g.tui.draw_text(2, 0, 'PAUSED')
+	g.tui.reset_bg_color()
+	g.tui.flush()
+}
+
 fn main_game() ? {
 	mut game := &Game{
 		snake: create_snake('käärme', 10)
 		last_key_press: .pos_x
+		is_paused: false
+		has_ended: false
 	}
 
 	game.tui = tui.init(
@@ -299,12 +329,28 @@ fn key_down(e &tui.Event, mut game Game) {
 		return
 	}
 
+	if e.code == .escape || e.code == .q {
+		game.exit()
+	}
+
+	if game.has_ended {
+		time.sleep_ms(500)
+		game.exit()
+	}
+
+	if e.code == .p {
+		game.is_paused = !game.is_paused
+	}
+
+	if game.is_paused {
+		return
+	}
+
 	match e.code {
 		.up { game.last_key_press = .neg_y }
 		.left { game.last_key_press = .neg_x }
 		.right { game.last_key_press = .pos_x }
 		.down { game.last_key_press = .pos_y }
-		.escape { exit(0) }
 		else {}
 	}
 }

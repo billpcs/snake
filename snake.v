@@ -174,24 +174,6 @@ fn (b BodyBlock) is_visible() bool {
 	return (b.ticks_to_visible == 0)
 }
 
-fn (arr []BodyBlock) contains(a BodyBlock) bool {
-	for i := 0; i < arr.len; i++ {
-		if arr[i].location.is_equal(a.location) {
-			return true
-		}
-	}
-	return false
-}
-
-fn (arr []Point) contains(a Point) bool {
-	for i := 0; i < arr.len; i++ {
-		if arr[i].is_equal(a) {
-			return true
-		}
-	}
-	return false
-}
-
 fn (this BodyBlock) is_equal(that BodyBlock) bool {
 	return that.location.is_equal(this.location)
 }

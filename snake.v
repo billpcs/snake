@@ -4,7 +4,6 @@ import rand
 import math
 import term.ui as tui
 
-// Snake Engine
 enum Direction {
 	pos_x
 	neg_x
@@ -51,6 +50,9 @@ const (
 	y_size          = 20
 	start_position  = Point{5, 5}
 	start_direction = Direction.pos_x
+	frame_color     = tui.Color{242, 170, 76}
+	backgr_color    = tui.Color{16, 24, 32}
+	point_color     = tui.Color{215, 38, 49}
 	bounds          = Bounds{
 		upper_left: Point{1, 1}
 		lower_right: Point{x_size - 1, y_size - 1}
@@ -96,7 +98,6 @@ pub fn (mut snake Snake) change_direction(d Direction) {
 
 pub fn (mut s Snake) step() {
 	// update ticks
-	mut a := s.body[0]
 	for i := 0; i < s.length(); i++ {
 		if s.body[i].ticks_to_visible > 0 {
 			s.body[i].ticks_to_visible--
@@ -237,21 +238,29 @@ pub fn (mut g Game) run() {
 			}
 			// paint
 			point_list := g.snake.get_visible_points()
-			print_point_list([rat], rat_character)
-			print_point_list(point_list, snake_character)
-			print_bounds()
+
+			g.tui.set_bg_color(backgr_color)
+			g.tui.draw_rect(bounds.upper_left.x, bounds.upper_left.y, bounds.lower_right.x,
+				bounds.lower_right.y)
+			g.tui.reset_bg_color()
+			g.tui.flush()
+
+			print_point_list(mut g, [rat], rat_character)
+			print_point_list(mut g, point_list, snake_character)
+			print_bounds(mut g)
 		}
 		time.sleep_ms(tick_time_ms)
 		i++
 	}
 }
 
-// Ascii Engine
-fn print_point_list(lst []Point, ch string) {
+fn print_point_list(mut g Game, lst []Point, ch string) {
+	g.tui.set_bg_color(backgr_color)
+	g.tui.set_color(point_color)
 	for point in lst {
-		term.set_cursor_position(term.Coord{point.x, point.y})
-		println(ch)
+		g.tui.draw_text(point.x, point.y, term.bold(ch))
 	}
+	g.tui.reset_color()
 }
 
 fn print_line(start Point, end Point, ch string) {
@@ -273,15 +282,13 @@ fn print_line(start Point, end Point, ch string) {
 	}
 }
 
-fn print_bounds() {
-	upper_left := bounds.upper_left
-	upper_right := Point{bounds.lower_right.x, bounds.upper_left.y}
-	lower_left := Point{bounds.upper_left.x, bounds.lower_right.y}
-	lower_right := bounds.lower_right
-	print_line(upper_right, upper_left, term.red('─'))
-	print_line(lower_left, lower_right, term.red('─'))
-	print_line(upper_left, lower_left, term.red('│'))
-	print_line(lower_right, upper_right, term.red('│'))
+fn print_bounds(mut g Game) {
+	ul := bounds.upper_left
+	lr := bounds.lower_right
+	g.tui.set_bg_color(frame_color)
+	g.tui.draw_empty_rect(ul.x, ul.y, lr.x, lr.y)
+	g.tui.reset_bg_color()
+	g.tui.flush()
 }
 
 // Main Game
@@ -315,7 +322,7 @@ fn key_down(e &tui.Event, mut game Game) {
 		.left { game.last_key_press = .neg_x }
 		.right { game.last_key_press = .pos_x }
 		.down { game.last_key_press = .pos_y }
-    .escape { exit(0) }
+		.escape { exit(0) }
 		else {}
 	}
 }

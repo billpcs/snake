@@ -40,6 +40,7 @@ mut:
 	last_key_press Direction
 	is_paused      bool
 	has_ended      bool
+	points         i64
 	tui            &tui.Context = 0
 }
 
@@ -234,6 +235,7 @@ pub fn (mut g Game) run() {
 			if g.snake.body[0].location.is_equal(rat) {
 				g.snake.eat(rat)
 				rat = g.snake.next_rat()
+				g.points += 5
 			}
 			// paint
 			point_list := g.snake.get_visible_points()
@@ -251,6 +253,8 @@ pub fn (mut g Game) run() {
 			if g.is_paused {
 				print_pause(mut g)
 			}
+
+			print_points(mut g)
 		}
 		time.sleep_ms(tick_time_ms)
 		i++
@@ -302,12 +306,23 @@ fn print_pause(mut g Game) {
 	g.tui.flush()
 }
 
+fn print_points(mut g Game) {
+	points_str := ' $g.points.str() pts '
+	points_len := points_str.len
+	g.tui.set_color(point_color)
+	g.tui.set_bg_color(backgr_color)
+	g.tui.draw_text(x_size - points_len - 1, 0, points_str)
+	g.tui.reset_bg_color()
+	g.tui.flush()
+}
+
 fn main_game() ? {
 	mut game := &Game{
 		snake: create_snake('käärme', 10)
 		last_key_press: .pos_x
 		is_paused: false
 		has_ended: false
+		points: 0
 	}
 
 	game.tui = tui.init(

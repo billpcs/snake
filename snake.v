@@ -151,7 +151,7 @@ fn (mut s Snake) check_snake_wrap() {
 }
 
 fn (s Snake) is_dead() bool {
-	return (s.body[0] in s.body[1..])
+	return s.body[0] in s.body[1..]
 }
 
 fn (mut s Snake) eat(rat Point) {
@@ -180,7 +180,7 @@ fn (s Snake) next_rat() Point {
 }
 
 fn (b BodyBlock) is_visible() bool {
-	return (b.ticks_to_visible == 0)
+	return b.ticks_to_visible == 0
 }
 
 fn (this BodyBlock) is_equal(that BodyBlock) bool {
@@ -188,15 +188,15 @@ fn (this BodyBlock) is_equal(that BodyBlock) bool {
 }
 
 fn (p Point) add_x(value int) Point {
-	return {
-		p |
+	return Point{
 		x: p.x + value
+		y: p.y
 	}
 }
 
 fn (p Point) add_y(value int) Point {
-	return {
-		p |
+	return Point{
+		x: p.x
 		y: p.y + value
 	}
 }
@@ -256,7 +256,7 @@ pub fn (mut g Game) run() {
 
 			print_points(mut g)
 		}
-		time.sleep_ms(tick_time_ms)
+		time.sleep(time.millisecond * tick_time_ms)
 		i++
 	}
 }
@@ -349,7 +349,7 @@ fn key_down(e &tui.Event, mut game Game) {
 	}
 
 	if game.has_ended {
-		time.sleep_ms(500)
+		time.sleep(time.millisecond * 500)
 		game.exit()
 	}
 

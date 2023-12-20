@@ -41,7 +41,7 @@ mut:
 	is_paused      bool
 	has_ended      bool
 	points         i64
-	tui            &tui.Context = 0
+	tui            &tui.Context = unsafe { nil }
 }
 
 const (
@@ -163,7 +163,7 @@ fn (mut s Snake) eat(rat Point) {
 }
 
 fn get_next_random_point() Point {
-	return Point{rand.intn(x_size - 5) + 2, rand.intn(y_size - 5) + 2}
+	return Point{rand.intn(x_size - 5) or {0} + 2, rand.intn(y_size - 5) or {0} + 2}
 }
 
 fn (s Snake) next_rat() Point {
@@ -336,7 +336,7 @@ fn main_game() ? {
 	)
 
 	go game.run()
-	game.tui.run() ?
+	game.tui.run() or {}
 }
 
 fn key_down(e &tui.Event, mut game Game) {

@@ -44,23 +44,21 @@ mut:
 	tui            &tui.Context = unsafe { nil }
 }
 
-const (
-	snake_character = 'o'
-	rat_character   = '@'
-	tick_time_ms    = 10
-	paint_factor    = 5
-	x_size          = 50
-	y_size          = 20
-	start_position  = Point{5, 5}
-	start_direction = Direction.pos_x
-	frame_color     = tui.Color{242, 170, 76}
-	backgr_color    = tui.Color{16, 24, 32}
-	point_color     = tui.Color{215, 38, 49}
-	bounds          = Bounds{
-		upper_left: Point{1, 1}
-		lower_right: Point{x_size - 1, y_size - 1}
-	}
-)
+const snake_character = 'o'
+const rat_character = '@'
+const tick_time_ms = 10
+const paint_factor = 5
+const x_size = 50
+const y_size = 20
+const start_position = Point{5, 5}
+const start_direction = Direction.pos_x
+const frame_color = tui.Color{242, 170, 76}
+const backgr_color = tui.Color{16, 24, 32}
+const point_color = tui.Color{215, 38, 49}
+const bounds = Bounds{
+	upper_left: Point{1, 1}
+	lower_right: Point{x_size - 1, y_size - 1}
+}
 
 fn create_snake(name string, len int) Snake {
 	return Snake{
@@ -163,7 +161,7 @@ fn (mut s Snake) eat(rat Point) {
 }
 
 fn get_next_random_point() Point {
-	return Point{rand.intn(x_size - 5) or {0} + 2, rand.intn(y_size - 5) or {0} + 2}
+	return Point{rand.intn(x_size - 5) or { 0 } + 2, rand.intn(y_size - 5) or { 0 } + 2}
 }
 
 fn (s Snake) next_rat() Point {
@@ -202,7 +200,7 @@ fn (p Point) add_y(value int) Point {
 }
 
 pub fn (p Point) str() string {
-	return '{$p.x,$p.y}'
+	return '{${p.x},${p.y}}'
 }
 
 fn (this Point) is_equal(that Point) bool {
@@ -307,7 +305,7 @@ fn print_pause(mut g Game) {
 }
 
 fn print_points(mut g Game) {
-	points_str := ' $g.points.str() pts '
+	points_str := ' ${g.points.str()} pts '
 	points_len := points_str.len
 	g.tui.set_color(point_color)
 	g.tui.set_bg_color(backgr_color)
@@ -371,5 +369,5 @@ fn key_down(e &tui.Event, mut game Game) {
 }
 
 fn main() {
-	main_game() ?
+	main_game()?
 }
